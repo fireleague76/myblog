@@ -3,6 +3,7 @@ package controllers
 import (
 	"myblog/models"
 	"myblog/util"
+	"time"
 )
 
 type BlogController struct {
@@ -72,5 +73,57 @@ func (c *BlogController) Home() {
 }
 
 func (c *BlogController) Article() {
+	c.list()
+	c.TplName = c.controllerName + "article.html"
+}
 
+func (c *BlogController) Detail() {
+	if id, _ := c.GetInt("id"); id != 0 {
+		post := models.Post{Id: id}
+		c.o.Read(&post)
+		c.Data["post"] = post
+		comments := []*models.Comment{}
+		query := c.o.QueryTable(new(models.Comment).TableName()).Filter("post_id", id)
+		query.All(&comments)
+		c.Data["comments"] = comments
+
+		categorys := []*models.Category{}
+		c.o.QueryTable(new(models.Category).TableName()).All(&categorys)
+		c.Data["cates"] = categorys
+		var hosts []*models.Post
+		querys := c.o.QueryTable(new(models.Post).TableName()).Filter("types", 1)
+		querys.OrderBy("-views").Limit(10, 0).All(&hosts)
+		c.Data["hosts"] = hosts
+	}
+	c.TplName = c.controllerName + "/detail.html"
+}
+
+func (c *BlogController) About() {
+	post := models.Post{Id: 1}
+	c.o.Read(&post)
+	c.Data["post"] = post
+	c.TplName = c.controllerName + "/about.html"
+}
+
+func (c *BlogController) Timeline() {
+	c.TplName = c.controllerName + "/timeline.html"
+}
+
+func (c *BlogController) Resource() {
+	c.list()
+	c.TplName = c.controllerName + "/resource.html"
+}
+
+func (c *BlogController) Comment() {
+	Comment := models.Comment{}
+	Comment.Username = c.GetString("username")
+	Comment.Content = c.GetString("content")
+	Comment.Ip = c.getClientIp()
+	Comment.PostId, _ = c.GetInt("post_id")
+	Comment.Created = time.Now()
+	if _, err := c.o.Insert(&Comment); err != nil {
+		c.History("发布评价失败"+err.Error(), "")
+	} else {
+		c.History("发布评价成功", "")
+	}
 }

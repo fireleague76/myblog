@@ -12,7 +12,7 @@ func init() {
 	beego.Router("/article", &controllers.BlogController{}, "*:Article")
 	beego.Router("/detail", &controllers.BlogController{}, "*:Detail")
 	beego.Router("/about", &controllers.BlogController{}, "*:About")
-	beego.Router("/timeline", &controllers.BlogController{}, "*:Timeline")
+	/* beego.Router("/timeline", &controllers.BlogController{}, "*:Timeline") */
 	beego.Router("/resource", &controllers.BlogController{}, "*:Resource")
 	beego.Router("/comment", &controllers.BlogController{}, "post:Comment")
 	beego.AutoRouter(&controllers.AdminController{})

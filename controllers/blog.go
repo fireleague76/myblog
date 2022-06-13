@@ -105,9 +105,9 @@ func (c *BlogController) About() {
 	c.TplName = c.controllerName + "/about.html"
 }
 
-func (c *BlogController) Timeline() {
+/* func (c *BlogController) Timeline() {
 	c.TplName = c.controllerName + "/timeline.html"
-}
+} */
 
 func (c *BlogController) Resource() {
 	c.list()

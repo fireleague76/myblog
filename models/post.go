@@ -10,7 +10,7 @@ type Post struct {
 	Content    string
 	Tags       string
 	Views      int
-	Istop      int8
+	IsTop      int8
 	Created    time.Time
 	Updated    time.Time
 	CategoryId int

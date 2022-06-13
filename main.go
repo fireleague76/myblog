@@ -5,6 +5,8 @@ import (
 
 	"myblog/models"
 
+	_ "github.com/go-sql-driver/mysql"
+
 	"github.com/astaxie/beego"
 )
 

@@ -31,9 +31,9 @@ func (c *BlogController) list() {
 	query := c.o.QueryTable(new(models.Post).TableName())
 
 	if c.actionName == "resource" {
-		query = query.Filter("tpyes", 0)
+		query = query.Filter("types", 0)
 	} else {
-		query = query.Filter("tpye", 1)
+		query = query.Filter("types", 1)
 	}
 
 	if cateId, _ = c.GetInt("cate_id"); cateId != 0 {
@@ -41,7 +41,7 @@ func (c *BlogController) list() {
 	}
 	keyword = c.Input().Get("keyword")
 	if keyword != "" {
-		query = query.Filter("title_contains", keyword)
+		query = query.Filter("title__contains", keyword)
 	}
 	query.OrderBy("-views").Limit(10, 0).All(&hosts)
 	if c.actionName == "home" {
@@ -58,7 +58,7 @@ func (c *BlogController) list() {
 
 func (c *BlogController) Home() {
 	config := models.Config{Name: "start"}
-	c.o.Read(&config, "name")
+	c.o.Read(&config, "Name")
 	var notices []*models.Post
 	c.o.QueryTable(new(models.Post).TableName()).Filter("category_id", 2).All(&notices)
 	c.Data["notices"] = notices
@@ -74,7 +74,7 @@ func (c *BlogController) Home() {
 
 func (c *BlogController) Article() {
 	c.list()
-	c.TplName = c.controllerName + "article.html"
+	c.TplName = c.controllerName + "/article.html"
 }
 
 func (c *BlogController) Detail() {

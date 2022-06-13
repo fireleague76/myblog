@@ -66,12 +66,12 @@ func (c *AdminController) Login() {
 		}
 		c.SetSession("user", user)
 	}
-	c.TplName = c.controllerName + "/login/html"
+	c.TplName = c.controllerName + "/login.html"
 }
 
-func (c *AdminController) Loginout() {
+func (c *AdminController) Logout() {
 	c.DestroySession()
-	c.History("退出登录", "/adimin/login/html")
+	c.History("退出登录", "/admin/login.html")
 }
 
 func (c *AdminController) About() {
@@ -84,7 +84,7 @@ func (c *AdminController) Index() {
 	c.Data["categorys"] = categorys
 	var (
 		page     int
-		pagesize int
+		pagesize int = 20
 		offset   int
 		list     []*models.Post
 		keyword  string
@@ -98,17 +98,17 @@ func (c *AdminController) Index() {
 	offset = (page - 1) * pagesize
 	query := c.o.QueryTable(new(models.Post).TableName())
 	if keyword != "" {
-		query = query.Filter("title_contains", keyword)
+		query = query.Filter("title__contains", keyword)
 	}
-	conut, _ := query.Count()
-	if conut > 0 {
-		query.OrderBy("-is_top", "created").Limit(pagesize, offset).All(&list)
+	count, _ := query.Count()
+	if count > 0 {
+		query.OrderBy("-is_top", "-created").Limit(pagesize, offset).All(&list)
 	}
 	c.Data["keyword"] = keyword
-	c.Data["count"] = conut
+	c.Data["count"] = count
 	c.Data["list"] = list
 	c.Data["cate_id"] = cateId
-	c.Data["pagebar"] = util.NewPager(page, int(conut), pagesize,
+	c.Data["pagebar"] = util.NewPager(page, int(count), pagesize,
 		fmt.Sprintf("/admin/index.html?keyword=%s", keyword), true).ToString()
 	c.TplName = c.controllerName + "/list.html"
 }
@@ -117,17 +117,17 @@ func (c *AdminController) Main() {
 	c.TplName = c.controllerName + "/main.tpl"
 }
 
-func (c AdminController) Article() {
+func (c *AdminController) Article() {
 	categorys := []*models.Category{}
 	c.o.QueryTable(new(models.Category).TableName()).All(&categorys)
 	id, _ := c.GetInt("id")
 	if id != 0 {
 		post := models.Post{Id: id}
 		c.o.Read(&post)
-		c.Data["psot"] = post
+		c.Data["post"] = post
 	}
 	c.Data["categorys"] = categorys
-	c.TplName = c.controllerName + "/form.html"
+	c.TplName = c.controllerName + "/_form.html"
 }
 
 func (c *AdminController) Upload() {
@@ -143,12 +143,12 @@ func (c *AdminController) Upload() {
 
 		}
 		img = "static/upload/" + util.UniqueId() + "." + exStr
-		err := c.SaveToFile("upFilename", img)
+		err = c.SaveToFile("upFilename", img)
 		if err != nil {
 			result["code"] = 1
-			result["massage"] = "上传异常" + err.Error()
+			result["message"] = "上传异常" + err.Error()
 		} else {
-			result["code"] = 1
+			result["code"] = 0
 			result["message"] = img
 		}
 	} else {
@@ -165,18 +165,17 @@ func (c *AdminController) Save() {
 	post.UserId = 1
 	post.Title = c.Input().Get("title")
 	post.Content = c.Input().Get("content")
-	post.Istop, _ = c.GetInt8("is_top")
+	post.IsTop, _ = c.GetInt8("is_top")
 	post.Types, _ = c.GetInt8("types")
 	post.Tags = c.Input().Get("tags")
 	post.Url = c.Input().Get("url")
 	post.CategoryId, _ = c.GetInt("cate_id")
 	post.Info = c.Input().Get("info")
-	post.Image = c.Input().Get("image")
+	post.Image = c.Input().Get("Image")
 	post.Created = time.Now()
 	post.Updated = time.Now()
 
 	id, _ := c.GetInt("id")
-
 	if id == 0 {
 		if _, err := c.o.Insert(&post); err != nil {
 			c.History("保存数据错误"+err.Error(), "")

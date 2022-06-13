@@ -26,7 +26,7 @@ func (p *baseController) Prepare() {
 		}
 	}
 
-	if strings.ToLower(p.controllerName) == "bolg" {
+	if strings.ToLower(p.controllerName) == "blog" {
 		p.Data["actionName"] = strings.ToLower(actionName)
 		var result []*models.Config
 		p.o.QueryTable(new(models.Config).TableName()).All(&result)
